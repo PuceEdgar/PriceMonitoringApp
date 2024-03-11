@@ -10,7 +10,7 @@ public static class ForegroundServiceHelper
     {
         var context = Application.Context;
         var manager = (ActivityManager)context.GetSystemService(Context.ActivityService);
-        var services = manager.GetRunningServices(int.MaxValue);
+
         foreach (var service in manager.GetRunningServices(int.MaxValue))
         {
             if (service.Service.ClassName.Contains("ForegroundServiceNotification"))

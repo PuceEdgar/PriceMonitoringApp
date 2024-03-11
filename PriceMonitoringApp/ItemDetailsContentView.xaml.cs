@@ -6,6 +6,7 @@ namespace PriceMonitoringApp;
 public partial class ItemDetailsContentView : Popup
 {
     private readonly MonitoredItem _monitoredItem;
+
     public ItemDetailsContentView(MonitoredItem item)
     {
         InitializeComponent();
@@ -21,6 +22,7 @@ public partial class ItemDetailsContentView : Popup
         PreviousPrice.Text = $"Previous price: {item.PreviousPrice}";
         AvailableSizes.Text = $"\nAvailable sizes:\n {ConcatSizeDetails(item.AvailableSizes)}";
         AllSizes.Text = $"\nAll sizes:\n {ConcatSizeDetails(item.AllSizes)}";
+        HistoryButton.IsVisible = item.PriceHistory.Any();
     }
 
     private void ClosePopup_Clicked(object sender, EventArgs e)
@@ -37,7 +39,7 @@ public partial class ItemDetailsContentView : Popup
     {        
         var message = new StringBuilder();
 
-        _monitoredItem.PriceHistory.ForEach(h => message.AppendLine($"{h.Date} - {h.Price}"));
+        _monitoredItem?.PriceHistory?.ForEach(h => message.AppendLine($"{h.Date} - {h.Price}"));
         await Application.Current.MainPage.DisplayAlert("Price History", message.ToString(), "Close");        
     }
 }

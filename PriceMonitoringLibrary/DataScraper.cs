@@ -30,7 +30,6 @@ public static class DataScraper
         {
             string a when a.Contains("mshop.ihanstyle", StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyleMobile(nodes),
             string a when a.Contains("hanstyle", StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyle(nodes),
-            //string b when b.Contains("musinsa", StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromMusinsa(nodes),
             _ => new()
         };
 
@@ -44,7 +43,6 @@ public static class DataScraper
 
         foreach (var item in monitoredItems)
         {
-            //item.Price = "90000";
             var newItemData = await GetItemFromUrl(item.ShareUrl);
             if (item.Price != newItemData.Price)
             {
@@ -58,7 +56,6 @@ public static class DataScraper
             {
                 detailsChanged = true;
                 item.AvailableSizes = newItemData.AvailableSizes;
-                // changedSizeInfo.AddRange(result);
             }
         }
 
@@ -104,13 +101,13 @@ public static class DataScraper
 
     private static MonitoredItem CollectItemInfoFromHanstyleMobile(IEnumerable<HtmlNode> nodes)
     {
-        var brand = nodes.FirstOrDefault(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals("recopick:brand"))).Attributes[1].Value;
-        var salePrice = nodes.FirstOrDefault(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals("recopick:sale_price"))).Attributes[1].Value;
-        var title = nodes.FirstOrDefault(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals("recopick:title"))).Attributes[1].Value;
-        var img = nodes.FirstOrDefault(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals("recopick:image"))).Attributes[1].Value;
-        var price = nodes.FirstOrDefault(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals("recopick:price"))).Attributes[1].Value;
-        var productUrl = nodes.FirstOrDefault(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals("tas:productUrl"))).Attributes[1].Value;
-        var options = nodes.FirstOrDefault(n => n.HasClass("optionSelectBox"))?.ChildNodes?.FirstOrDefault(n => n.Name == "ul")?.ChildNodes.Where(n => n.Name == "li");
+        string? brand = GetValueForProperty(nodes, "recopick:brand");
+        var salePrice = GetValueForProperty(nodes, "recopick:sale_price");
+        var title = GetValueForProperty(nodes, "recopick:title");
+        var img = GetValueForProperty(nodes, "recopick:image");
+        var price = GetValueForProperty(nodes, "recopick:price");
+        var productUrl = GetValueForProperty(nodes, "tas:productUrl");
+        var options = nodes?.FirstOrDefault(n => n.HasClass("optionSelectBox"))?.ChildNodes?.FirstOrDefault(n => n.Name == "ul")?.ChildNodes.Where(n => n.Name == "li");
         var allSizes = new List<SizeDetails>();
         var availableSizes = new List<SizeDetails>();
 
@@ -126,18 +123,8 @@ public static class DataScraper
         }
 
         var isSoldOut = IsItemSoldOut(nodes, allSizes);
-        //var sale_price = nodes.FirstOrDefault(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals("recopick:sale_price")));
-        //product name: class="pdt_name" class="font_w_40 fo_14"
-        var name = nodes.FirstOrDefault(n => n.HasClass("pdt_name"))?.ChildNodes[3].InnerText;
-        //product price: class="pdt_price" id="price_discount" old price class="col_gray_dl fo_16" discount class="disp_ib fo_22 font_w_70"
-        //for mobile use class="price" and class="sale"
         var mobilepriceNodeChildren = nodes.FirstOrDefault(n => n.HasClass("price"))?.ChildNodes;
-        var discountPrice = mobilepriceNodeChildren?.FirstOrDefault(c => c.Name == "span")?.NextSibling.InnerText.Trim();
-        var originalPrice = mobilepriceNodeChildren?.FirstOrDefault(c => c.Name == "del")?.InnerText.Trim();
         var discountPercent = mobilepriceNodeChildren?.FirstOrDefault(c => c.Name == "span")?.InnerText.Trim();
-
-        //HtmlNode sizeNode = nodes.FirstOrDefault(n => n.HasClass("sizelist"));
-        //var sizes = sizeNode?.Descendants(0).Where(d => d.HasClass("con")).Select(s => s.InnerText).ToList();
 
         MonitoredItem item = new()
         {
@@ -158,6 +145,11 @@ public static class DataScraper
         return item;
     }
 
+    private static string? GetValueForProperty(IEnumerable<HtmlNode> nodes, string propertyName)
+    {
+        return nodes?.FirstOrDefault(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals(propertyName)))?.Attributes[1].Value;
+    }
+
     private static string FormatStringToCurrency(string price)
     {
         return $"￦{string.Format(CultureInfo.InvariantCulture, "{0:n0}", int.Parse(price))}";
@@ -169,6 +161,4 @@ public static class DataScraper
         var noSizeLeft = sizes!.TrueForAll(s => s.Availability.Trim().Contains("[품절]"));
         return noSizeLeft || soldOutMetaExists;
     }
-
-    
 }

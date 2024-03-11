@@ -1,8 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
-using Plugin.LocalNotification;
 using PriceMonitoringLibrary;
-using System.Collections.ObjectModel;
 using Application = Android.App.Application;
 
 namespace PriceMonitoringApp;
@@ -10,10 +8,8 @@ namespace PriceMonitoringApp;
 [Service]
 public class PriceCheckerService : IPriceCheckerService
 {
-    private const int ServiceId = 1001;
     private const int IntervalMilliseconds = 3 * 60 * 60 * 1000; // 3 hours
     private bool _isRunning;
-
 
     public bool ToggleService()
     {
@@ -45,8 +41,11 @@ public class PriceCheckerService : IPriceCheckerService
                 {
                     try
                     {
-                        await OutputServiceStatus();
-                        await CheckPriceAndAvailability();
+                        var detailshanged = await DataScraper.CheckIfItemDetailsHaveCHanged();
+                        if (detailshanged)
+                        {
+                            await NotificationService.ShowGeneralChangeNotification();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -58,54 +57,6 @@ public class PriceCheckerService : IPriceCheckerService
                 }
             });
         }
-    }
-
-    private async Task CheckPriceAndAvailability()
-    {
-        var detailsChanged = false;
-        var monitoredItems = await FileHelper.GetSavedItemData();
-
-        foreach (var item in monitoredItems)
-        {
-            //item.Price = "90000";
-            var newItemData = await DataScraper.GetItemFromUrl(item.ShareUrl);
-            if (item.Price != newItemData.Price)
-            {
-                detailsChanged = true;
-                item.PreviousPrice = item.Price;
-                item.PriceHistory.Add(new HistoryDetails { Price = item.Price });
-                item.Price = newItemData.Price;
-            }
-            var result = item.AvailableSizes.Except(newItemData.AvailableSizes, new SizeDetailsComparer())?.ToList();
-            if (result is not null)
-            {
-                detailsChanged = true;
-                item.AvailableSizes = newItemData.AvailableSizes;
-                // changedSizeInfo.AddRange(result);
-            }
-        }
-
-        if (detailsChanged)
-        {
-            await FileHelper.SaveToFile(new ObservableCollection<MonitoredItem>(monitoredItems));
-            ShowGeneralChangeNotification();
-        }
-    }
-
-    private async void ShowGeneralChangeNotification()
-    {
-        var request = new NotificationRequest
-        {
-            Title = "Product details changed",
-            Description = $"Item details have changed!"
-        };
-
-        await LocalNotificationCenter.Current.Show(request);
-    }
-
-    private Task OutputServiceStatus()
-    {
-        return Task.Run(() => Console.WriteLine("Service is running!"));
     }
 
     private void StopForegroundService()

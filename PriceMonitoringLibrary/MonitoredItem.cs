@@ -1,5 +1,4 @@
-﻿
-namespace PriceMonitoringLibrary;
+﻿namespace PriceMonitoringLibrary;
 
 public class MonitoredItem : PropertyChangedNotifier
 {
@@ -54,14 +53,4 @@ public class MonitoredItem : PropertyChangedNotifier
     }
     public string? ProductUrl { get; set; }
     public string? ShareUrl { get; set; }
-
-    //public string? GetAvailableSizesAsString()
-    //{
-    //    if (AvailableSizes is not null)
-    //    {
-    //        return string.Join(" ", AvailableSizes.Select(s => $"{s.Size}-{s.Availability}"));
-    //    }
-
-    //    return string.Empty;
-    //}
 }
