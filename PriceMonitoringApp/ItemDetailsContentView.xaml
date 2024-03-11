@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<xct:Popup x:Class="PriceMonitoringApp.ItemDetailsContentView"
+                xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+           Size="350, 600"
+           Color="White">
+
+    <ScrollView Padding="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Image x:Name="ImageURL"
+                            
+               Aspect="AspectFill"
+               HeightRequest="300"
+               WidthRequest="300"
+               Margin="10"
+               />
+            <Label 
+               Grid.Row="1"    
+               x:Name="DateItemAdded"
+               FontAttributes="Bold"/>
+            <Label 
+               Grid.Row="2"    
+               x:Name="InitialPrice"
+               FontAttributes="Bold"/>
+            <Label 
+               Grid.Row="3"    
+               x:Name="Brand"
+               FontAttributes="Bold"/>
+            <Label                   
+               Grid.Row="4"
+               x:Name="Description"
+               FontAttributes="Bold"
+               LineBreakMode="CharacterWrap"
+               MaxLines="3"/>
+            <Label Grid.Row="5"
+               x:Name="OriginalPrice"
+               FontAttributes="Italic"
+               VerticalOptions="End"
+               TextDecorations="Strikethrough"/>
+            <Label Grid.Row="6"
+               x:Name="Discount"
+               FontAttributes="Bold"
+               VerticalOptions="End" />
+            <Label Grid.Row="7"
+               x:Name="PreviousPrice"
+               FontAttributes="Bold"
+               VerticalOptions="End" />
+            <Label 
+               Grid.Row="8"                                       
+               x:Name="SalePrice"
+               FontAttributes="Bold"
+               FontSize="20"
+               VerticalOptions="End"
+               TextColor="Green"/>
+            <Button Grid.Row="9"
+                    x:Name="HistoryButton"
+                    Text="Show price history"
+                    Clicked="HistoryButton_Clicked"
+                    Margin="15"/>
+            <Label Grid.Row="10"
+                x:Name="AvailableSizes"/>
+            <Label Grid.Row="11"
+                   x:Name="AllSizes"/>
+            <Button Grid.Row="12"
+                    x:Name="ClosePopup" 
+                    Text="Close"
+                    Clicked="ClosePopup_Clicked"
+                    Margin="20"/>
+            
+        </Grid>
+    </ScrollView>
+</xct:Popup>

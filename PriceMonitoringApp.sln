@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceMonitoringApp", "PriceMonitoringApp\PriceMonitoringApp.csproj", "{109B1BEF-E4DA-48FE-B54E-D5215DF6351D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceMonitoringLibrary", "PriceMonitoringLibrary\PriceMonitoringLibrary.csproj", "{12EA15CD-C8AC-42B6-8DF1-C77115A497AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{109B1BEF-E4DA-48FE-B54E-D5215DF6351D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{109B1BEF-E4DA-48FE-B54E-D5215DF6351D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{109B1BEF-E4DA-48FE-B54E-D5215DF6351D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{109B1BEF-E4DA-48FE-B54E-D5215DF6351D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{109B1BEF-E4DA-48FE-B54E-D5215DF6351D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{109B1BEF-E4DA-48FE-B54E-D5215DF6351D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{12EA15CD-C8AC-42B6-8DF1-C77115A497AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12EA15CD-C8AC-42B6-8DF1-C77115A497AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12EA15CD-C8AC-42B6-8DF1-C77115A497AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12EA15CD-C8AC-42B6-8DF1-C77115A497AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9F31A406-8E01-4B7D-B534-3A9650BD2CFB}
+	EndGlobalSection
+EndGlobal
