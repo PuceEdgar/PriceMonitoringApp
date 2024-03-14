@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
 using Plugin.LocalNotification;
+using PriceMonitoringApp.ViewModel;
+using PriceMonitoringApp.Views;
 
 namespace PriceMonitoringApp
 {
@@ -18,6 +20,15 @@ namespace PriceMonitoringApp
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             })
                 .UseMauiCommunityToolkit();
+
+            builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<MainViewModel>();
+
+            builder.Services.AddTransient<DetailPage>();
+            builder.Services.AddTransient<DetailViewModel>();
+
+            builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<SettingsViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

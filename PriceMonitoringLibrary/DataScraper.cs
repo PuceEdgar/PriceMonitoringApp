@@ -28,8 +28,8 @@ public static class DataScraper
 
         MonitoredItem item = url switch
         {
-            string a when a.Contains("mshop.ihanstyle", StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyleMobile(nodes),
-            string a when a.Contains("hanstyle", StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyle(nodes),
+            string a when a.Contains(Constants.MobileHanstyleDomainName, StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyleMobile(nodes),
+            string a when a.Contains(Constants.HanstyleDomainName, StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyle(nodes),
             _ => new()
         };
 
@@ -52,7 +52,7 @@ public static class DataScraper
                 item.Price = newItemData.Price;
             }
             var result = item.AvailableSizes.Except(newItemData.AvailableSizes, new SizeDetailsComparer())?.ToList();
-            if (result is not null)
+            if (result.Count > 0)
             {
                 detailsChanged = true;
                 item.AvailableSizes = newItemData.AvailableSizes;
@@ -101,13 +101,13 @@ public static class DataScraper
 
     private static MonitoredItem CollectItemInfoFromHanstyleMobile(IEnumerable<HtmlNode> nodes)
     {
-        string? brand = GetValueForProperty(nodes, "recopick:brand");
-        var salePrice = GetValueForProperty(nodes, "recopick:sale_price");
-        var title = GetValueForProperty(nodes, "recopick:title");
-        var img = GetValueForProperty(nodes, "recopick:image");
-        var price = GetValueForProperty(nodes, "recopick:price");
-        var productUrl = GetValueForProperty(nodes, "tas:productUrl");
-        var options = nodes?.FirstOrDefault(n => n.HasClass("optionSelectBox"))?.ChildNodes?.FirstOrDefault(n => n.Name == "ul")?.ChildNodes.Where(n => n.Name == "li");
+        string? brand = GetValueForProperty(nodes, Constants.BrandProperty);
+        var salePrice = GetValueForProperty(nodes, Constants.SalePriceProperty);
+        var title = GetValueForProperty(nodes, Constants.TitleProperty);
+        var img = GetValueForProperty(nodes, Constants.ImageProperty);
+        var price = GetValueForProperty(nodes, Constants.PriceProperty);
+        var productUrl = GetValueForProperty(nodes, Constants.UrlProperty);
+        var options = nodes?.FirstOrDefault(n => n.HasClass(Constants.OptionSelectBoxTag))?.ChildNodes?.FirstOrDefault(n => n.Name == "ul")?.ChildNodes.Where(n => n.Name == "li");
         var allSizes = new List<SizeDetails>();
         var availableSizes = new List<SizeDetails>();
 
@@ -116,7 +116,7 @@ public static class DataScraper
             var size = option.ChildNodes[1]?.InnerText;
             var availability = option.ChildNodes.Count > 4 ? option.ChildNodes[3]?.InnerText.Trim() : "Many";
             allSizes.Add(new SizeDetails(size, availability));
-            if (!availability.Contains("[품절]"))
+            if (!availability.Contains(Constants.SoldOut))
             {
                 availableSizes.Add(new SizeDetails(size, availability));
             }
@@ -147,7 +147,7 @@ public static class DataScraper
 
     private static string? GetValueForProperty(IEnumerable<HtmlNode> nodes, string propertyName)
     {
-        return nodes?.FirstOrDefault(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals(propertyName)))?.Attributes[1].Value;
+        return nodes?.FirstOrDefault(n => n.Name == Constants.Meta && n.Attributes.AttributesWithName(Constants.Property).Any(a => a.Value.Equals(propertyName)))?.Attributes[1].Value;
     }
 
     private static string FormatStringToCurrency(string price)
@@ -157,8 +157,8 @@ public static class DataScraper
 
     private static bool IsItemSoldOut(IEnumerable<HtmlNode> nodes, List<SizeDetails> sizes)
     {
-        var soldOutMetaExists = nodes.Any(n => n.Name == "meta" && n.Attributes.AttributesWithName("property").Any(a => a.Value.Equals("recopick:availability")));
-        var noSizeLeft = sizes!.TrueForAll(s => s.Availability.Trim().Contains("[품절]"));
+        var soldOutMetaExists = nodes.Any(n => n.Name == Constants.Meta && n.Attributes.AttributesWithName(Constants.Property).Any(a => a.Value.Equals(Constants.AvailabilityProperty)));
+        var noSizeLeft = sizes!.TrueForAll(s => s.Availability.Trim().Contains(Constants.SoldOut));
         return noSizeLeft || soldOutMetaExists;
     }
 }

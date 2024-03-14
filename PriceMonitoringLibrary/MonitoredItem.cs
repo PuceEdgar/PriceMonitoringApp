@@ -1,37 +1,30 @@
-﻿namespace PriceMonitoringLibrary;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-public class MonitoredItem : PropertyChangedNotifier
+namespace PriceMonitoringLibrary;
+
+public partial class MonitoredItem : ObservableObject
 {
     private string? _price;
     private bool _isSoldOut;
     private string? _previousPrice;
 
     public string? DateItemAdded { get; set; } = DateTime.Now.ToShortDateString();
+    
     public string? Brand { get; set; }
     public string? Descripton { get; set; }
     public string? InitialProductPrice { get; set; }
-    public string? Price { 
-        get
-        {
-            return _price;
-        }
-        set
-        {
-            _price = value;
-            RaisePropertyChanged(nameof(Price));
-        }
+    public string? Price
+    {
+        get => _price;
+        set => SetProperty(ref _price, value);
     }
-    public string? PreviousPrice {
-        get
-        {
-            return _previousPrice;
-        }
-        set
-        {
-            _previousPrice = value;
-            RaisePropertyChanged(nameof(PreviousPrice));
-        }
+    
+    public string? PreviousPrice
+    {
+        get => _previousPrice;
+        set => SetProperty(ref _previousPrice, value);
     }
+    
     public List<HistoryDetails>? PriceHistory { get; set; } = [];
     public string? OriginalPrice { get; set; }
     public string? DiscountPercent { get; set; }
@@ -41,15 +34,8 @@ public class MonitoredItem : PropertyChangedNotifier
     public string? ImageUrl { get; set; }
     public bool IsSoldOut
     {
-        get
-        {
-            return _isSoldOut;
-        }
-        set
-        {
-            _isSoldOut = value;
-            RaisePropertyChanged(nameof(_isSoldOut));
-        }
+        get => _isSoldOut;
+        set => SetProperty(ref _isSoldOut, value);
     }
     public string? ProductUrl { get; set; }
     public string? ShareUrl { get; set; }

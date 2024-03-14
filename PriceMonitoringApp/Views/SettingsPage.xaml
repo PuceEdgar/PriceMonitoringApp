@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PriceMonitoringApp.Views.SettingsPage"
+             xmlns:viewmodel="clr-namespace:PriceMonitoringApp.ViewModel"
+             x:DataType="viewmodel:SettingsViewModel"
+             xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             Title="Settings">
+
+    <ContentPage.Resources>
+        <Style x:Key="InvalidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Red" />
+        </Style>
+        <Style x:Key="ValidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Green" />
+        </Style>
+    </ContentPage.Resources>
+    
+    <Grid RowSpacing="30"
+          Padding="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.7*"/>
+            <ColumnDefinition Width="0.3*"/>
+        </Grid.ColumnDefinitions>
+        <Label Text="Data sync frequency"
+               FontSize="20"
+                VerticalTextAlignment="Center"/>
+        <Entry Grid.Column="1"
+               Placeholder="Enter number"
+               Keyboard="Numeric"
+               Text="{Binding Frequency}">
+            <Entry.Behaviors>
+                <xct:EventToCommandBehavior EventName="Completed" Command="{Binding SetFrequencyCommand}"/>
+                <xct:NumericValidationBehavior
+                    InvalidStyle="{StaticResource InvalidEntryStyle}"
+                    ValidStyle="{StaticResource ValidEntryStyle}"
+                    Flags="ValidateOnValueChanged"
+                    MinimumValue="1"
+                    MaximumValue="24"/>
+            </Entry.Behaviors>
+        </Entry>
+        <Label Grid.Row="1"        
+                Text="{Binding ServiceStatus, StringFormat='Service status: {0}'}"
+                FontSize="20"
+                VerticalTextAlignment="Center"/>
+        <Button Grid.Row="1"
+                Grid.Column="1"
+                Text="{Binding ServiceButtonText}"
+               Command="{Binding ToggleServiceCommand}"/>
+        
+        <Label Grid.Row="2" 
+               Text="Manually refresh data"
+               FontSize="20"
+               VerticalTextAlignment="Center"/>
+        <Button Grid.Row="2"
+                Grid.Column="1"
+                Text="Refresh"
+                Command="{Binding RefreshDataCommand}"/>
+    </Grid>
+</ContentPage>

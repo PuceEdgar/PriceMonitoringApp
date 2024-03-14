@@ -2,103 +2,144 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              HideSoftInputOnTapped="True"
-             x:Class="PriceMonitoringApp.MainPage">
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
+             x:Class="PriceMonitoringApp.MainPage"
+             xmlns:viewmodel="clr-namespace:PriceMonitoringApp.ViewModel"
+             x:DataType="viewmodel:MainViewModel"
+             xmlns:Item="clr-namespace:PriceMonitoringLibrary;assembly=PriceMonitoringLibrary"
+             xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+
+    <ContentPage.Behaviors>
+        <xct:EventToCommandBehavior EventName="Appearing" Command="{Binding LoadCommand}"/>
+    </ContentPage.Behaviors>
+    <Grid RowSpacing="20"
+          Padding="20, 0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
             <Label
                 Text="Welcome!"
                 Style="{StaticResource Headline}"
-                SemanticProperties.HeadingLevel="Level1" />
-            <Button x:Name="RefreshButton"
-                    Clicked="RefreshButton_Clicked"
-                    Text="Refresh"/>
-            <Button x:Name="ServiceButton"
-                    Clicked="ServiceButton_Clicked"
-                    Text="Start Service"/>
-            <Entry x:Name="itemUrl"
+                SemanticProperties.HeadingLevel="Level1" />           
+        <Entry Grid.Row="3"
+               x:Name="itemUrl"
                    ClearButtonVisibility="WhileEditing"
                    Placeholder="Enter item url"
-                    Completed="OnEntryCompleted"/>
-            <Label x:Name="ItemExistsLabel"
+               Text="{Binding Url}">
+            <Entry.Behaviors>
+                <xct:EventToCommandBehavior EventName="Completed" Command="{Binding AddItemCommand}" CommandParameter="{x:Reference itemUrl}"/>
+            </Entry.Behaviors>
+        </Entry>
+        <Label Grid.Row="4"
+               x:Name="ItemExistsLabel"
                    Text="Item exists in list"
-                   />
-            <Label x:Name="FailedToLoadItem"
+                   IsVisible="{Binding ItemExistsIsVisible}"/>
+        <Label Grid.Row="5" 
+               x:Name="FailedToLoadItem"
                    Text="Failed to load item from URL"
-                   />
-            <Button
+                   IsVisible="{Binding FailedToLoadItem}"/>        
+        <Button Grid.Row="6"
+                Command="{Binding AddItemCommand}"
                 x:Name="AddNewItemBtn"
-                Text="Add item from URL" 
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnAddNewItemClicked"
+                Text="Add item from URL"                 
                 HorizontalOptions="Fill" />
-            <CollectionView x:Name="itemsList"
-                            SelectionMode="Single"
-                            SelectionChanged="ItemsList_SelectionChanged">
+        <ScrollView Grid.Row="7">
+            <CollectionView 
+                        ItemsSource="{Binding Items}"                
+                        SelectionMode="None">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Image Grid.RowSpan="6"
+                    <DataTemplate x:DataType="{x:Type Item:MonitoredItem}">
+
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="Delete"
+                                           BackgroundColor="Red"
+                                               Command="{Binding DeleteItemCommand, Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}}"
+CommandParameter="{Binding}"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <Frame Margin="0, 10">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding TapCommand, Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}}"
+                                                          CommandParameter="{Binding}"/>
+                                </Frame.GestureRecognizers>
+                                <Grid RowSpacing="3"
+                                  Padding="0, 15">
+                                    <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.RowSpan="6"
                                        Source="{Binding ImageUrl}"
                                        Aspect="AspectFill"
                                        HeightRequest="150"
                                         WidthRequest="150"
                                        Margin="0,0,10,0"/>
-                            <Label Grid.Row="0"
+                                <Label Grid.Row="0"
                                    Grid.Column="1"                                   
                                        Text="{Binding Brand}"
                                        FontAttributes="Bold"/>
-                            <Label Grid.Row="1"
+                                <Label Grid.Row="1"
                                        Grid.Column="1"
                                        Text="{Binding OriginalPrice, StringFormat='Original Price: {0}'}"
                                        FontAttributes="Italic"
                                        VerticalOptions="End"
                                        TextDecorations="Strikethrough"/>
-                            <Label Grid.Row="2"
+                                <Label Grid.Row="2"
                                        Grid.Column="1"
                                        Text="{Binding DiscountPercent, StringFormat='Discount: {0}'}"
                                        FontAttributes="Bold"
                                        VerticalOptions="End" />
-                            <Label Grid.Row="3"
+                                <Label Grid.Row="3"
                                    Grid.Column="1"
                                    x:Name="PreviousPrice"
                                    Text="{Binding PreviousPrice, StringFormat='Previous price: {0}'}"/>
-                            <Label Grid.Row="4"
+                                <Label Grid.Row="4"
                                    Grid.Column="1"                                                                               
                                        Text="{Binding Price, StringFormat='Current price: {0}'}"
                                        FontAttributes="Bold"
                                        FontSize="16"
                                        VerticalOptions="End"
                                        TextColor="Green"/>
-                            <Label Grid.Row="5"
+                                <Label Grid.Row="5"
                                    Grid.Column="1"
                                    Text="{Binding AvailableSizesAsString, StringFormat='Available size options: {0}'}"/>
-                            <Button Grid.Row="6"
+                                <!--<Button Grid.Row="6"
                                     Grid.ColumnSpan="2"
                                     x:Name="DeleteItem"
                                     Text="Delete Item"
-                                    Clicked="DeleteItem_Clicked"
+                                    Command="{Binding DeleteItemCommand, Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}}"
+                                    CommandParameter="{Binding}"
                                     FontSize="20"
                                     Margin="0,20"
-                                    BackgroundColor="Red"/>
-                        </Grid>
+                                    BackgroundColor="Red">
+                                </Button>-->
+                            </Grid>
+                            </Frame>
+                        </SwipeView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+    </Grid>
 </ContentPage>
