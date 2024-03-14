@@ -1,4 +1,6 @@
-﻿namespace PriceMonitoringApp;
+﻿using PriceMonitoringApp.Views;
+
+namespace PriceMonitoringApp;
 
 public partial class AppShell : Shell
 {
@@ -6,6 +8,7 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
         Routing.RegisterRoute(nameof(DetailPage), typeof(DetailPage));
+        Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
     }
 
     protected override void OnNavigating(ShellNavigatingEventArgs args)

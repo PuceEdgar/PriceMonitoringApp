@@ -5,15 +5,11 @@
              xmlns:viewmodel="clr-namespace:PriceMonitoringApp.ViewModel"
              x:DataType="viewmodel:DetailViewModel"
              xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             Title="Product details"
-             >
-
-    <ContentPage.Behaviors>
-        <xct:EventToCommandBehavior EventName="Disappearing" Command="{Binding RemoveShellPageCommand}"/>
-    </ContentPage.Behaviors>
-
+             Title="Product details">
     <ScrollView Padding="10">
-        <Grid RowSpacing="5">
+        
+        <Grid RowSpacing="5"
+              >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -32,79 +28,74 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Image x:Name="ImageURL"
-                        
-           Aspect="AspectFill"
+            <Button 
+                    Text="Go Back"
+                    Command="{Binding GoBackCommand}"
+                    Margin="30, 10" />
+            <Image Grid.Row="1"
+                x:Name="ImageURL"
+                   Aspect="AspectFill"
                    Source="{Binding Item.ImageUrl}"
-           HeightRequest="300"
-           WidthRequest="300"
-           Margin="10"
-           />
-            <Label 
-           Grid.Row="1"    
-           x:Name="DateItemAdded"
-           FontAttributes="Bold"
-                Text="{Binding Item.DateItemAdded, StringFormat='Date item added: {0}'}"/>
-            <Label 
-           Grid.Row="2"    
-           x:Name="InitialPrice"
-                Text="{Binding Item.InitialProductPrice, StringFormat='Initial price: {0}'}"
-           FontAttributes="Bold"/>
-            <Label 
-           Grid.Row="3"    
-           x:Name="Brand"
-                Text="{Binding Item.Brand}"
-           FontAttributes="Bold"/>
-            <Label                   
-           Grid.Row="4"
-           x:Name="Description"
-                Text="{Binding Item.Descripton}"
-           FontAttributes="Bold"
-           LineBreakMode="CharacterWrap"
-           MaxLines="3"/>
+                   HeightRequest="300"
+                   WidthRequest="300"
+                   Margin="10" />
+            <Label Grid.Row="2"
+                   x:Name="DateItemAdded"
+                   FontAttributes="Bold"
+                   Text="{Binding Item.DateItemAdded, StringFormat='Date item added: {0}'}" />
+            <Label Grid.Row="3"
+                   x:Name="InitialPrice"
+                   Text="{Binding Item.InitialProductPrice, StringFormat='Initial price: {0}'}"
+                   FontAttributes="Bold" />
+            <Label Grid.Row="4"
+                   x:Name="Brand"
+                   Text="{Binding Item.Brand}"
+                   FontAttributes="Bold" />
             <Label Grid.Row="5"
-           x:Name="OriginalPrice"
-                   Text="{Binding Item.OriginalPrice, StringFormat='Original Price: {0}'}"
-           FontAttributes="Italic"
-           VerticalOptions="End"
-           TextDecorations="Strikethrough"/>
+                   x:Name="Description"
+                   Text="{Binding Item.Descripton}"
+                   FontAttributes="Bold"
+                   LineBreakMode="CharacterWrap"
+                   MaxLines="3" />
             <Label Grid.Row="6"
-           x:Name="Discount"
-                   Text="{Binding Item.DiscountPercent}"
-           FontAttributes="Bold"
-           VerticalOptions="End" />
+                   x:Name="OriginalPrice"
+                   Text="{Binding Item.OriginalPrice, StringFormat='Original Price: {0}'}"
+                   FontAttributes="Italic"
+                   VerticalOptions="End"
+                   TextDecorations="Strikethrough" />
             <Label Grid.Row="7"
-           x:Name="PreviousPrice"
-                   Text="{Binding Item.PreviousPrice}"
-           FontAttributes="Bold"
-           VerticalOptions="End" />
-            <Label 
-           Grid.Row="8"                                       
-           x:Name="SalePrice"
-                Text="{Binding Item.Price}"
-           FontAttributes="Bold"
-           FontSize="20"
-           VerticalOptions="End"
-           TextColor="Green"/>
-            <Button Grid.Row="9"
-                x:Name="HistoryButton"
-                Text="Show price history"
-                Command="{Binding ShowHistoryCommand}"
-                Margin="15"/>
-            <Label Grid.Row="10"
-            x:Name="AvailableSizes"
+                   x:Name="Discount"
+                   Text="{Binding Item.DiscountPercent, StringFormat='Discount: {0}'}"
+                   FontAttributes="Bold"
+                   VerticalOptions="End" />
+            <Label Grid.Row="8"
+                   x:Name="PreviousPrice"
+                   Text="{Binding Item.PreviousPrice, StringFormat='Previous Price: {0}'}"
+                   FontAttributes="Bold"
+                   VerticalOptions="End" />
+            <Label Grid.Row="9"
+                   x:Name="SalePrice"
+                   Text="{Binding Item.Price, StringFormat='Current Price: {0}'}"
+                   FontAttributes="Bold"
+                   FontSize="20"
+                   VerticalOptions="End"
+                   TextColor="Green" />
+            <Button Grid.Row="10"
+                    x:Name="HistoryButton"
+                    Text="Show price history"
+                    Command="{Binding ShowHistoryCommand}"
+                    Margin="15, 0"/>
+            <Label Grid.Row="11"
+                   x:Name="AvailableSizes"
                    FontSize="18"
                    Margin="0, 10"
-                   Text="{Binding AvailableSizes, StringFormat='Available sizes: {0}', Source={RelativeSource AncestorType={x:Type viewmodel:DetailViewModel}}}"/>
-            <Label Grid.Row="11"
-               x:Name="AllSizes"
-                    FontSize="18"
+                   Text="{Binding AvailableSizes, StringFormat='Available sizes: {0}', Source={RelativeSource AncestorType={x:Type viewmodel:DetailViewModel}}}" />
+            <Label Grid.Row="12"
+                   x:Name="AllSizes"
+                   FontSize="18"
                    Margin="0, 10"
-                   Text="{Binding AllSizes, StringFormat='All sizes: {0}', Source={RelativeSource AncestorType={x:Type viewmodel:DetailViewModel}}}"/>
-            <Button Grid.Row="12" 
-                    Text="Go Back"
-                Command="{Binding GoBackCommand}"/>
-
+                   Text="{Binding AllSizes, StringFormat='All sizes: {0}', Source={RelativeSource AncestorType={x:Type viewmodel:DetailViewModel}}}" />
+            
         </Grid>
     </ScrollView>
 </ContentPage>

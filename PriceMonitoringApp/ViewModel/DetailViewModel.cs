@@ -32,12 +32,6 @@ public partial class DetailViewModel : ObservableObject
         await Application.Current.MainPage.DisplayAlert("Price History", message.ToString(), "Close");
     }
 
-    [RelayCommand]
-    async Task RemoveShellPage()
-    {
-        
-    }
-
     partial void OnItemChanged(MonitoredItem? oldValue, MonitoredItem newValue)
     {
         if (newValue is not null)
@@ -55,5 +49,4 @@ public partial class DetailViewModel : ObservableObject
         }
         return string.Join("", item.Select(s => $"\n{s.Size}: [ {s.Availability} ]"));
     }
-
 }

@@ -60,6 +60,7 @@
 	<ItemGroup>
 	  <None Remove="Resources\Images\home.png" />
 	  <None Remove="Resources\Images\settings.png" />
+	  <None Remove="Resources\Images\settings_new.png" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PriceMonitoringApp.Views;
 using PriceMonitoringLibrary;
 using System.Collections.ObjectModel;
 
@@ -21,15 +22,19 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     string? url;
 
+    [ObservableProperty]
+    string availableSizeText;
+
+    Label l;
+
     public MainViewModel()
     {
         LoadCommand = new AsyncRelayCommand(async () =>
         {
             Items ??= new ObservableCollection<MonitoredItem>(await FileHelper.GetSavedItemData());
-            
         });
     }
-    
+
     [RelayCommand]
     async Task AddItem()
     {
@@ -55,6 +60,12 @@ public partial class MainViewModel : ObservableObject
     async Task Tap(object sender)
     {
         await Shell.Current.GoToAsync(nameof(DetailPage), true, new Dictionary<string, object>() { { "Item", sender} });
+    }
+
+    [RelayCommand]
+    async Task GotToSettings(object sender)
+    {
+        await Shell.Current.GoToAsync(nameof(SettingsPage));
     }
 
     private async Task AddItemFromUrl()

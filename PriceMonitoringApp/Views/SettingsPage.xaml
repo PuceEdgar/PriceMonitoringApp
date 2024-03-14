@@ -8,60 +8,71 @@
              Title="Settings">
 
     <ContentPage.Resources>
-        <Style x:Key="InvalidEntryStyle" TargetType="Entry">
-            <Setter Property="TextColor" Value="Red" />
+        <Style x:Key="InvalidEntryStyle"
+               TargetType="Entry">
+            <Setter Property="TextColor"
+                    Value="Red" />
         </Style>
-        <Style x:Key="ValidEntryStyle" TargetType="Entry">
-            <Setter Property="TextColor" Value="Green" />
+        <Style x:Key="ValidEntryStyle"
+               TargetType="Entry">
+            <Setter Property="TextColor"
+                    Value="Green" />
         </Style>
     </ContentPage.Resources>
-    
+
     <Grid RowSpacing="30"
           Padding="15">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.7*"/>
-            <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition Width="0.7*" />
+            <ColumnDefinition Width="0.3*" />
         </Grid.ColumnDefinitions>
-        <Label Text="Data sync frequency"
+        <Button Text="Go Back"
+                Command="{Binding GoBackCommand}"
+                Grid.ColumnSpan="2"
+                Margin="30, 10" />
+        <Label Grid.Row="1"
+               Text="Data sync frequency"
                FontSize="20"
-                VerticalTextAlignment="Center"/>
-        <Entry Grid.Column="1"
+               VerticalTextAlignment="Center" />
+        <Entry Grid.Row="1"
+               Grid.Column="1"
                Placeholder="Enter number"
                Keyboard="Numeric"
-               Text="{Binding Frequency}">
+               Text="{Binding Frequency}"
+               HorizontalTextAlignment="Center">
             <Entry.Behaviors>
-                <xct:EventToCommandBehavior EventName="Completed" Command="{Binding SetFrequencyCommand}"/>
-                <xct:NumericValidationBehavior
-                    InvalidStyle="{StaticResource InvalidEntryStyle}"
-                    ValidStyle="{StaticResource ValidEntryStyle}"
-                    Flags="ValidateOnValueChanged"
-                    MinimumValue="1"
-                    MaximumValue="24"/>
+                <xct:EventToCommandBehavior EventName="Completed"
+                                            Command="{Binding SetFrequencyCommand}" />
+                <xct:NumericValidationBehavior InvalidStyle="{StaticResource InvalidEntryStyle}"
+                                               ValidStyle="{StaticResource ValidEntryStyle}"
+                                               Flags="ValidateOnValueChanged"
+                                               MinimumValue="1"
+                                               MaximumValue="24" />
             </Entry.Behaviors>
         </Entry>
-        <Label Grid.Row="1"        
-                Text="{Binding ServiceStatus, StringFormat='Service status: {0}'}"
-                FontSize="20"
-                VerticalTextAlignment="Center"/>
-        <Button Grid.Row="1"
-                Grid.Column="1"
-                Text="{Binding ServiceButtonText}"
-               Command="{Binding ToggleServiceCommand}"/>
-        
-        <Label Grid.Row="2" 
-               Text="Manually refresh data"
+        <Label Grid.Row="2"
+               Text="{Binding ServiceStatus, StringFormat='Service status: {0}'}"
                FontSize="20"
-               VerticalTextAlignment="Center"/>
+               VerticalTextAlignment="Center" />
         <Button Grid.Row="2"
                 Grid.Column="1"
+                Text="{Binding ServiceButtonText}"
+                Command="{Binding ToggleServiceCommand}" />
+
+        <Label Grid.Row="3"
+               Text="Manually refresh data"
+               FontSize="20"
+               VerticalTextAlignment="Center" />
+        <Button Grid.Row="3"
+                Grid.Column="1"
                 Text="Refresh"
-                Command="{Binding RefreshDataCommand}"/>
+                Command="{Binding RefreshDataCommand}" />
     </Grid>
 </ContentPage>

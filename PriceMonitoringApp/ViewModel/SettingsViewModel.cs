@@ -49,6 +49,12 @@ public partial class SettingsViewModel : ObservableObject
         Preferences.Set(Constants.FrequencyKey, Frequency);
     }
 
+    [RelayCommand]
+    async Task GoBack()
+    {
+        await Shell.Current.GoToAsync("..");
+    }
+
     private void SetTextValuesForService(bool isRunning)
     {
         ServiceButtonText = isRunning ? Constants.StopService : Constants.StartService;
