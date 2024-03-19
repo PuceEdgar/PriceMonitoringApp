@@ -1,13 +1,14 @@
 ﻿using HtmlAgilityPack;
 using PriceMonitoringApp;
+using PriceMonitoringLibrary.Models;
 using System.Collections.ObjectModel;
 using System.Globalization;
 
-namespace PriceMonitoringLibrary;
+namespace PriceMonitoringLibrary.Services;
 
-public static class DataScraper
+public static class DataScraperService
 {
-    public static async Task<MonitoredItem> GetItemFromUrl(string url)
+    public static async Task<MonitoredItem?> GetItemFromUrl(string url)
     {
         using HttpClient client = new();
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
@@ -21,25 +22,25 @@ public static class DataScraper
         doc.LoadHtml(result);
         var nodes = doc.DocumentNode.Descendants(0);
 
-        if (nodes is null)
+        if (nodes is null || nodes.Count() < 700)
         {
-            return new MonitoredItem();
+            return null;
         }
 
-        MonitoredItem item = url switch
+        MonitoredItem? item = url switch
         {
-            string a when a.Contains(Constants.MobileHanstyleDomainName, StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyleMobile(nodes),
-            string a when a.Contains(Constants.HanstyleDomainName, StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyle(nodes),
-            _ => new()
+            string a when a.Contains(Constants.MobileHanstyleDomainName, StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyleMobile(nodes, url),
+            string a when a.Contains(Constants.HanstyleDomainName, StringComparison.CurrentCultureIgnoreCase) => CollectItemInfoFromHanstyle(nodes, url),
+            _ => null
         };
 
         return item;
     }
 
-    public static async Task<bool> CheckIfItemDetailsHaveCHanged()
+    public static async Task<bool> CheckIfItemDetailsHaveChanged()
     {
         var detailsChanged = false;
-        var monitoredItems = await FileHelper.GetSavedItemData();
+        var monitoredItems = await FileService.GetSavedItemData();
 
         foreach (var item in monitoredItems)
         {
@@ -61,13 +62,13 @@ public static class DataScraper
 
         if (detailsChanged)
         {
-            await FileHelper.SaveToFile(new ObservableCollection<MonitoredItem>(monitoredItems));
+            await FileService.SaveToFile(new ObservableCollection<MonitoredItem>(monitoredItems));
         }
 
         return detailsChanged;
     }
 
-    private static MonitoredItem CollectItemInfoFromHanstyle(IEnumerable<HtmlNode> nodes)
+    private static MonitoredItem CollectItemInfoFromHanstyle(IEnumerable<HtmlNode> nodes, string url)
     {
         //product name: class="pdt_name" class="font_w_40 fo_14"
         var name = nodes.FirstOrDefault(n => n.HasClass("pdt_name"))?.ChildNodes[3].InnerText;
@@ -89,7 +90,7 @@ public static class DataScraper
 
         MonitoredItem item = new()
         {
-            Descripton = name,
+            Description = name,
             Price = discountPrice,
             OriginalPrice = originalPrice,
             DiscountPercent = discountPercent,
@@ -99,7 +100,7 @@ public static class DataScraper
         return item;
     }
 
-    private static MonitoredItem CollectItemInfoFromHanstyleMobile(IEnumerable<HtmlNode> nodes)
+    private static MonitoredItem CollectItemInfoFromHanstyleMobile(IEnumerable<HtmlNode> nodes, string url)
     {
         string? brand = GetValueForProperty(nodes, Constants.BrandProperty);
         var salePrice = GetValueForProperty(nodes, Constants.SalePriceProperty);
@@ -129,7 +130,7 @@ public static class DataScraper
         MonitoredItem item = new()
         {
             Brand = brand,
-            Descripton = title,
+            Description = title,
             Price = FormatStringToCurrency(salePrice),
             InitialProductPrice = FormatStringToCurrency(price),
             OriginalPrice = FormatStringToCurrency(price),
@@ -139,7 +140,9 @@ public static class DataScraper
             ImageUrl = $"https:{img}",
             IsSoldOut = isSoldOut,
             ProductUrl = productUrl,
-            AvailableSizesAsString = $"\n{string.Join("  ", availableSizes?.Select(s => $"[ {s.Size} ]"))}"
+            AvailableSizesAsString = $"\n{string.Join("  ", availableSizes?.Select(s => $"[ {s.Size} ]"))}",
+            ShareUrl = url,
+            ProductCode = UriService.GetProductCodeValueFromUri(url)
         };
 
         return item;

@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PriceMonitoringLibrary;
+using PriceMonitoringLibrary.Models;
 using System.Text;
 
 namespace PriceMonitoringApp.ViewModel;

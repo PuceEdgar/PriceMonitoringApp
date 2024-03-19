@@ -53,7 +53,7 @@
                    FontAttributes="Bold" />
             <Label Grid.Row="5"
                    x:Name="Description"
-                   Text="{Binding Item.Descripton}"
+                   Text="{Binding Item.Description}"
                    FontAttributes="Bold"
                    LineBreakMode="CharacterWrap"
                    MaxLines="3" />

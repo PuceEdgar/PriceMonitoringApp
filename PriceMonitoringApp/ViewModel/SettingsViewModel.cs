@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PriceMonitoringLibrary;
+using PriceMonitoringLibrary.Services;
 
 namespace PriceMonitoringApp.ViewModel;
 
@@ -13,14 +13,14 @@ public partial class SettingsViewModel : ObservableObject
         PriceCheckerService = priceCheckerService;
         var isRunning = ForegroundServiceHelper.IsForegroundServiceRunning();
         SetTextValuesForService(isRunning);
-        Frequency = Preferences.Get(Constants.FrequencyKey, 24);
+        Frequency = Preferences.Get(Constants.FrequencyKey, 6);
     }
 
     [ObservableProperty]
-    string serviceButtonText;
+    string? serviceButtonText;
 
     [ObservableProperty]
-    string serviceStatus;
+    string? serviceStatus;
 
     [ObservableProperty]
     int frequency;
@@ -28,14 +28,16 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     void ToggleService()
     {
+        //TODO
+        //start service on app start up, but if there are no items saved, don't start service
         var isRunning = PriceCheckerService.ToggleService();
         SetTextValuesForService(isRunning);
     }
 
     [RelayCommand]
-    async Task RefreshData()
+    static async Task RefreshData()
     {
-        var hasSomethingChanged = await DataScraper.CheckIfItemDetailsHaveCHanged();
+        var hasSomethingChanged = await DataScraperService.CheckIfItemDetailsHaveChanged();
 
         if (hasSomethingChanged)
         {
@@ -50,7 +52,7 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    async Task GoBack()
+    static async Task GoBack()
     {
         await Shell.Current.GoToAsync("..");
     }

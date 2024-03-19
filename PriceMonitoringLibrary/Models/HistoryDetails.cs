@@ -1,5 +1,4 @@
-﻿
-namespace PriceMonitoringLibrary;
+﻿namespace PriceMonitoringLibrary.Models;
 
 public class HistoryDetails
 {

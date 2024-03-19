@@ -11,9 +11,10 @@ internal static class Constants
     public const string AvailabilityProperty = "recopick:availability";
     public const string OptionSelectBoxTag = "optionSelectBox";
     public const string SoldOut = "[품절]";
-
     public const string Meta = "meta";
     public const string Property = "property";
     public const string MobileHanstyleDomainName = "mshop.ihanstyle";
     public const string HanstyleDomainName = "hanstyle";
+    public const string FileName = "ItemData.json";
+    public const string ProductCodeKey = "PROD_CD";
 }

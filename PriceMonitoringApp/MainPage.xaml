@@ -5,7 +5,7 @@
              x:Class="PriceMonitoringApp.MainPage"
              xmlns:viewmodel="clr-namespace:PriceMonitoringApp.ViewModel"
              x:DataType="viewmodel:MainViewModel"
-             xmlns:Item="clr-namespace:PriceMonitoringLibrary;assembly=PriceMonitoringLibrary"
+             xmlns:Item="clr-namespace:PriceMonitoringLibrary.Models;assembly=PriceMonitoringLibrary"
              xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:local="clr-namespace:PriceMonitoringApp">
 
@@ -20,8 +20,6 @@
         <Grid RowSpacing="20"
               Padding="20, 0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -64,21 +62,13 @@
                                                 CommandParameter="{x:Reference itemUrl}" />
                 </Entry.Behaviors>
             </Entry>
-            <Label Grid.Row="2"
-                   x:Name="ItemExistsLabel"
-                   Text="Item exists in list"
-                   IsVisible="{Binding ItemExistsIsVisible}" />
-            <Label Grid.Row="3"
-                   x:Name="FailedToLoadItem"
-                   Text="Failed to load item from URL"
-                   IsVisible="{Binding FailedToLoadItem}" />
-            <Button Grid.Row="4"
+            <Button Grid.Row="2"
                     Command="{Binding AddItemCommand}"
                     x:Name="AddNewItemBtn"
                     Text="Add item from URL"
                     HorizontalOptions="Fill" />
 
-            <CollectionView Grid.Row="5"
+            <CollectionView Grid.Row="3"
                             ItemsSource="{Binding Items}"
                             SelectionMode="None">
                 <CollectionView.ItemTemplate>

@@ -1,6 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
-using PriceMonitoringLibrary;
+using PriceMonitoringLibrary.Services;
 using Application = Android.App.Application;
 
 namespace PriceMonitoringApp;
@@ -8,7 +8,7 @@ namespace PriceMonitoringApp;
 [Service]
 public class PriceCheckerService : IPriceCheckerService
 {
-    private const int IntervalMilliseconds = 3 * 60 * 60 * 1000; // 3 hours
+    private readonly int _frequency = Preferences.Get(Constants.FrequencyKey, 6);
     private bool _isRunning;
 
     public bool ToggleService()
@@ -41,7 +41,7 @@ public class PriceCheckerService : IPriceCheckerService
                 {
                     try
                     {
-                        var detailshanged = await DataScraper.CheckIfItemDetailsHaveCHanged();
+                        var detailshanged = await DataScraperService.CheckIfItemDetailsHaveChanged();
                         if (detailshanged)
                         {
                             await NotificationService.ShowGeneralChangeNotification();
@@ -52,8 +52,9 @@ public class PriceCheckerService : IPriceCheckerService
                         Console.WriteLine($"Error checking price and availability: {ex.Message}");
                     }
 
+                    var intervalInMilliseconds = _frequency * 60 * 60 * 1000;
                     // Wait for the specified interval
-                    await Task.Delay(IntervalMilliseconds);
+                    await Task.Delay(intervalInMilliseconds);
                 }
             });
         }

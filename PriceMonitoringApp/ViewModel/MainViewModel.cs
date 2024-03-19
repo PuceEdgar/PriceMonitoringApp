@@ -1,7 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PriceMonitoringApp.Views;
-using PriceMonitoringLibrary;
+using PriceMonitoringLibrary.Models;
+using PriceMonitoringLibrary.Services;
 using System.Collections.ObjectModel;
 
 namespace PriceMonitoringApp.ViewModel;
@@ -10,28 +11,22 @@ public partial class MainViewModel : ObservableObject
 {
     public IRelayCommand LoadCommand { get; set; }
 
-    [ObservableProperty]
-    ObservableCollection<MonitoredItem> items;
+    private readonly Page? _mainPage = Application.Current!.MainPage;
 
     [ObservableProperty]
-    bool itemExistsIsVisible;
-
-    [ObservableProperty]
-    bool failedToLoadItem;
+    ObservableCollection<MonitoredItem> items = [];
 
     [ObservableProperty]
     string? url;
 
     [ObservableProperty]
-    string availableSizeText;
-
-    Label l;
+    string? availableSizeText;
 
     public MainViewModel()
     {
         LoadCommand = new AsyncRelayCommand(async () =>
         {
-            Items ??= new ObservableCollection<MonitoredItem>(await FileHelper.GetSavedItemData());
+            Items = new ObservableCollection<MonitoredItem>(await FileService.GetSavedItemData());
         });
     }
 
@@ -49,10 +44,10 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        var isDeleteConfirmed = await Application.Current.MainPage.DisplayAlert("Deleting item", $"This item will be deleted\n {itemToDelete?.Brand}\n {itemToDelete?.Descripton}", "Delete", "Cancel");
+        var isDeleteConfirmed = await _mainPage!.DisplayAlert("Deleting item", $"This item will be deleted\n {itemToDelete?.Brand}\n {itemToDelete?.Description}", "Delete", "Cancel");
         if (isDeleteConfirmed && Items.Remove(itemToDelete!))
         {
-            await FileHelper.SaveToFile(Items);
+            await FileService.SaveToFile(Items);
         }
     }
 
@@ -70,29 +65,31 @@ public partial class MainViewModel : ObservableObject
 
     private async Task AddItemFromUrl()
     {
-        if (string.IsNullOrWhiteSpace(Url))
+        if (string.IsNullOrWhiteSpace(Url) || !Uri.IsWellFormedUriString(Url, UriKind.Absolute))
         {
-            await Application.Current.MainPage.DisplayAlert("Adding new item", "Link to item was not provided. Please provide link again.", "OK");
+            await _mainPage!.DisplayAlert("Adding new item", "Link to item was not provided or is in wrong format. Please provide link again.", "OK");
             return;
         }
-        if (Items.Any(mi => mi.ShareUrl == Url))
+       
+        var productCode = UriService.GetProductCodeValueFromUri(Url);
+
+        if (Items.Any(mi => mi.ProductCode == productCode))
         {
-            ItemExistsIsVisible = true;
+            await _mainPage!.DisplayAlert("Adding new item", "Item already exists in the item list.", "OK");
             return;
         }
 
-        var item = await DataScraper.GetItemFromUrl(Url);
+        var item = await DataScraperService.GetItemFromUrl(Url);
 
         if (item is null)
         {
-            FailedToLoadItem = true;
+            await _mainPage!.DisplayAlert("Adding new item", "Failed to load item from link. Please check link and try again.", "OK");
             return;
         }
-        item.ShareUrl = Url;
 
         Items.Add(item);
 
-        await FileHelper.SaveToFile(Items);
+        await FileService.SaveToFile(Items);
         Url = null;
     }
 }
