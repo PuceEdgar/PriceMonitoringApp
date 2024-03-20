@@ -20,9 +20,8 @@ public static class FileService
     public static async Task<List<MonitoredItem>> GetSavedItemData()
     {
         var data = await GetDataFromDataFile();
-        var items = JsonConvert.DeserializeObject<List<MonitoredItem>>(data);
 
-        return items ?? [];
+        return string.IsNullOrWhiteSpace(data) ? [] : JsonConvert.DeserializeObject<List<MonitoredItem>>(data)!;
     }
 
     private static async Task<string> GetDataFromDataFile()

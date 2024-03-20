@@ -65,9 +65,9 @@ public partial class MainViewModel : ObservableObject
 
     private async Task AddItemFromUrl()
     {
-        if (string.IsNullOrWhiteSpace(Url) || !Uri.IsWellFormedUriString(Url, UriKind.Absolute))
+        if (string.IsNullOrWhiteSpace(Url) || !Uri.IsWellFormedUriString(Url, UriKind.Absolute) || !Url.Contains(Constants.MobileHanstyleDomainName, StringComparison.CurrentCultureIgnoreCase))
         {
-            await _mainPage!.DisplayAlert("Adding new item", "Link to item was not provided or is in wrong format. Please provide link again.", "OK");
+            await _mainPage!.DisplayAlert("Adding new item", "Link to item was not provided, is in wrong format or not from Hanstyle mobile app. Please provide link again.", "OK");
             return;
         }
        

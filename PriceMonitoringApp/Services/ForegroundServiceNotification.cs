@@ -2,7 +2,7 @@
 using Android.Content;
 using Android.OS;
 
-namespace PriceMonitoringApp;
+namespace PriceMonitoringApp.ForegroundService;
 
 [Service]
 internal class ForegroundServiceNotification : Service
@@ -15,7 +15,7 @@ internal class ForegroundServiceNotification : Service
     public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
     {
         // Create and display the foreground notification
-        NotificationChannel channel = new NotificationChannel("ServiceChannel", "PriceService", NotificationImportance.Max);
+        NotificationChannel channel = new("ServiceChannel", "PriceService", NotificationImportance.Max);
         NotificationManager manager = (NotificationManager)MainActivity.ActivityCurrent.GetSystemService(NotificationService);
         manager.CreateNotificationChannel(channel);
 

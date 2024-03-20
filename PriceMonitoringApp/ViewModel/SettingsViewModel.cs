@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PriceMonitoringApp.ForegroundService;
+using PriceMonitoringApp.Services;
 using PriceMonitoringLibrary.Services;
 
 namespace PriceMonitoringApp.ViewModel;
@@ -11,7 +13,7 @@ public partial class SettingsViewModel : ObservableObject
     public SettingsViewModel(IPriceCheckerService priceCheckerService)
     {
         PriceCheckerService = priceCheckerService;
-        var isRunning = ForegroundServiceHelper.IsForegroundServiceRunning();
+        var isRunning = ForegroundServiceUtility.IsForegroundServiceRunning();
         SetTextValuesForService(isRunning);
         Frequency = Preferences.Get(Constants.FrequencyKey, 6);
     }

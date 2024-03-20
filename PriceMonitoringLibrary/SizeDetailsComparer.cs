@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace PriceMonitoringApp;
 
-public class SizeDetailsComparer : IEqualityComparer<SizeDetails>
+internal class SizeDetailsComparer : IEqualityComparer<SizeDetails>
 {
     public bool Equals(SizeDetails? x, SizeDetails? y)
     {

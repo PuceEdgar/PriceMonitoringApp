@@ -3,6 +3,7 @@ using CommunityToolkit.Maui;
 using Plugin.LocalNotification;
 using PriceMonitoringApp.ViewModel;
 using PriceMonitoringApp.Views;
+using PriceMonitoringApp.Services;
 
 namespace PriceMonitoringApp
 {
@@ -36,7 +37,7 @@ namespace PriceMonitoringApp
 
             builder.Services.AddSingleton<MainPage>();
 #if ANDROID
-            builder.Services.AddTransient<IPriceCheckerService, PriceCheckerService>();
+            builder.Services.AddSingleton<IPriceCheckerService, PriceCheckerService>();
 #endif
             return builder.Build();
         }

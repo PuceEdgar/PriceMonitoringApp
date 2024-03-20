@@ -25,7 +25,7 @@ public partial class MonitoredItem : ObservableObject
         set => SetProperty(ref _previousPrice, value);
     }
 
-    public List<HistoryDetails>? PriceHistory { get; set; } = [];
+    public List<HistoryDetails> PriceHistory { get; set; } = [];
     public string? OriginalPrice { get; set; }
     public string? DiscountPercent { get; set; }
     public List<SizeDetails>? AllSizes { get; set; }

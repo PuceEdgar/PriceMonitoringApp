@@ -7,10 +7,10 @@
              x:DataType="viewmodel:MainViewModel"
              xmlns:Item="clr-namespace:PriceMonitoringLibrary.Models;assembly=PriceMonitoringLibrary"
              xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:local="clr-namespace:PriceMonitoringApp">
+             xmlns:local="clr-namespace:PriceMonitoringApp.Converters">
 
     <ContentPage.Resources>
-        <local:ValueToColorConverter x:Key="valueToColor" />
+        <local:AvailabilityToColorConverter x:Key="availabilityToColor" />
     </ContentPage.Resources>
     <ContentPage.Behaviors>
         <xct:EventToCommandBehavior EventName="Appearing"
@@ -155,11 +155,9 @@
                                                         <ColumnDefinition Width="auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <Label Text="{Binding Size, StringFormat='{0}'}"
-                                                           TextColor="{Binding Availability, Converter={StaticResource valueToColor}}"
+                                                           TextColor="{Binding Availability, Converter={StaticResource availabilityToColor}}"
                                                            FontAttributes="Bold" />
-                                                    <!--<Label Grid.Column="1" Text="{Binding Availability}"
-                                                           TextColor="{Binding Availability, Converter={StaticResource valueToColor}}"
-                                                           FontAttributes="Bold"/>-->
+                                                    
                                                 </Grid>
                                             </DataTemplate>
                                         </BindableLayout.ItemTemplate>

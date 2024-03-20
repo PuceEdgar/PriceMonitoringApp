@@ -1,9 +1,10 @@
 ﻿using Android.App;
 using Android.Content;
+using PriceMonitoringApp.ForegroundService;
 using PriceMonitoringLibrary.Services;
 using Application = Android.App.Application;
 
-namespace PriceMonitoringApp;
+namespace PriceMonitoringApp.Services;
 
 [Service]
 public class PriceCheckerService : IPriceCheckerService
@@ -34,7 +35,7 @@ public class PriceCheckerService : IPriceCheckerService
             var intent = new Intent(Application.Context, typeof(ForegroundServiceNotification));
             Application.Context.StartService(intent);
             Console.WriteLine("Service started!");
-            // Perform HTTP call every 3 hours
+            // Perform HTTP call every N hours
             Task.Run(async () =>
             {
                 while (_isRunning)

@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 
-namespace PriceMonitoringApp;
+namespace PriceMonitoringApp.Converters;
 
-internal class ValueToColorConverter : IValueConverter
+internal class AvailabilityToColorConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

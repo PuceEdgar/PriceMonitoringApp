@@ -1,4 +1,4 @@
-﻿namespace PriceMonitoringApp;
+﻿namespace PriceMonitoringApp.Services;
 
 public interface IPriceCheckerService
 {

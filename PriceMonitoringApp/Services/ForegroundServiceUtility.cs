@@ -2,9 +2,9 @@
 using Android.Content;
 using Application = Android.App.Application;
 
-namespace PriceMonitoringApp;
+namespace PriceMonitoringApp.ForegroundService;
 
-public static class ForegroundServiceHelper
+public static class ForegroundServiceUtility
 {
     public static bool IsForegroundServiceRunning()
     {
