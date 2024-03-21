@@ -10,11 +10,17 @@
              xmlns:local="clr-namespace:PriceMonitoringApp.Converters">
 
     <ContentPage.Resources>
-        <local:AvailabilityToColorConverter x:Key="availabilityToColor" />
+        <local:AvailabilityToColorConverter x:Key="availabilityToColor"/>
+        <local:PriceEnumToStrokeColorConverter x:Key="priceEnumToStrokeColor"/>
+        <local:PriceEnumToBackgroundColorConverter x:Key="priceEnumToBackgroundColor"/>
+        <local:BooleanToOpacityConverter x:Key="boolToOpacity"/>
+        <local:ServiceStatusToColorConverter x:Key="serviceStatusToColor"/>
     </ContentPage.Resources>
     <ContentPage.Behaviors>
         <xct:EventToCommandBehavior EventName="Appearing"
                                     Command="{Binding LoadCommand}" />
+        <xct:EventToCommandBehavior EventName="Disappearing"
+                                    Command="{Binding CheckAndSaveChangesCommand}" />
     </ContentPage.Behaviors>
     <ScrollView>
         <Grid RowSpacing="20"
@@ -30,26 +36,30 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-
-            <Frame WidthRequest="200"
-                   BackgroundColor="Aquamarine"
-                   MaximumHeightRequest="150"
-                   Padding="0, 5"
-                   Margin="20">
-                <Frame.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding GotToSettingsCommand}" />
-                </Frame.GestureRecognizers>
-                <VerticalStackLayout>
-                    <ImageButton Source="settings_new.png"
-                                 HeightRequest="40"
-                                 WidthRequest="40" />
-                    <Label Text="Settings"
-                           VerticalTextAlignment="Center"
-                           HorizontalTextAlignment="Center"
-                           FontSize="16" />
-                </VerticalStackLayout>
-
-            </Frame>
+            <Grid RowDefinitions="Auto, Auto"
+                  ColumnDefinitions="*">
+                <Label HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"
+                       Margin="10, 30, 10, 20"
+                       FontSize="22">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Service is: " />
+                            <Span Text="{Binding ServiceStatus}"
+                                  TextColor="{Binding ServiceStatus, Converter={StaticResource serviceStatusToColor}}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Button Grid.Row="1"
+                        Text="Settings"
+                        FontSize="20"
+                        MaximumWidthRequest="200"
+                        BackgroundColor="Aquamarine"
+                        TextColor="Black"
+                        Margin="0, 0, 0, 20"
+                        Command="{Binding GotToSettingsCommand}"/>
+            </Grid>
+            
 
             <Entry Grid.Row="1"
                    x:Name="itemUrl"
@@ -84,12 +94,17 @@
                                                CommandParameter="{Binding}" />
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <Frame Margin="0, 10"
-                                   Padding="10">
-                                <Frame.GestureRecognizers>
+                            <Border Margin="0, 10"
+                                    Padding="10"
+                                    StrokeShape="RoundRectangle 10,10,10,10"
+                                    Stroke="{Binding IsPriceCheaper, Converter={StaticResource priceEnumToStrokeColor}}"
+                                    Opacity="{Binding IsSoldOut, Converter={StaticResource boolToOpacity}}"
+                                    BackgroundColor="{Binding IsPriceCheaper, Converter={StaticResource priceEnumToBackgroundColor}}">
+                                
+                                <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding TapCommand, Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}}"
                                                           CommandParameter="{Binding}" />
-                                </Frame.GestureRecognizers>
+                                </Border.GestureRecognizers>
                                 <Grid RowSpacing="3">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
@@ -102,7 +117,7 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.RowSpan="6"
@@ -110,7 +125,18 @@
                                            Aspect="AspectFill"
                                            WidthRequest="150"
                                            HeightRequest="150"
-                                           Margin="0,0,10,0" />
+                                           Margin="0,0,10,0"
+                                           Opacity="{Binding IsSoldOut, Converter={StaticResource boolToOpacity}}"/>                                    
+                                    <Label Text="SOLD OUT"
+                                           Grid.RowSpan="6"
+                                           Grid.ColumnSpan="2"
+                                           VerticalTextAlignment="Center"
+                                           HorizontalTextAlignment="Center"
+                                           FontSize="48"
+                                           FontAttributes="Bold"                                           
+                                           LineBreakMode="CharacterWrap"
+                                           IsVisible="{Binding IsSoldOut}"
+                                           />
                                     <Label Grid.Row="0"
                                            Grid.Column="1"
                                            Text="{Binding Brand}"
@@ -163,7 +189,7 @@
                                         </BindableLayout.ItemTemplate>
                                     </FlexLayout>
                                 </Grid>
-                            </Frame>
+                            </Border>
                         </SwipeView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

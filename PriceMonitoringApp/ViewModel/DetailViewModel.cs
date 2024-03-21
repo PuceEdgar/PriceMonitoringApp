@@ -12,10 +12,10 @@ public partial class DetailViewModel : ObservableObject
     MonitoredItem item;
 
     [ObservableProperty]
-    string availableSizes;
+    string? availableSizes;
 
     [ObservableProperty]
-    string allSizes;
+    string? allSizes;
 
     [RelayCommand]
     async Task GoBack()
@@ -28,7 +28,7 @@ public partial class DetailViewModel : ObservableObject
     {
         var message = new StringBuilder();
 
-        Item?.PriceHistory?.ForEach(h => message.AppendLine($"{h.Date} - {h.Price}"));
+        Item.PriceHistory?.ForEach(h => message.AppendLine($"{h.Date} - {h.Price}"));
         await Application.Current.MainPage.DisplayAlert("Price History", message.ToString(), "Close");
     }
 
@@ -41,7 +41,7 @@ public partial class DetailViewModel : ObservableObject
         }
     }
 
-    private string ConcatSizeDetails(List<SizeDetails>? item)
+    private static string ConcatSizeDetails(List<SizeDetails>? item)
     {
         if (item is null)
         {

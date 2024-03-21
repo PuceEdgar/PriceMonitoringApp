@@ -2,21 +2,29 @@
 using CommunityToolkit.Mvvm.Input;
 using PriceMonitoringApp.ForegroundService;
 using PriceMonitoringApp.Services;
+using PriceMonitoringLibrary.Models;
 using PriceMonitoringLibrary.Services;
+using System.Collections.ObjectModel;
 
 namespace PriceMonitoringApp.ViewModel;
 
+[QueryProperty("Items", "Items")]
 public partial class SettingsViewModel : ObservableObject
 {
     readonly IPriceCheckerService PriceCheckerService;
+    private readonly Page? _mainPage = Application.Current!.MainPage;
+    private bool _isRunning;    
 
     public SettingsViewModel(IPriceCheckerService priceCheckerService)
     {
         PriceCheckerService = priceCheckerService;
-        var isRunning = ForegroundServiceUtility.IsForegroundServiceRunning();
-        SetTextValuesForService(isRunning);
+        _isRunning = ForegroundServiceUtility.IsForegroundServiceRunning();
+        SetTextValuesForService();
         Frequency = Preferences.Get(Constants.FrequencyKey, 6);
     }
+
+    [ObservableProperty]
+    ObservableCollection<MonitoredItem> items = [];
 
     [ObservableProperty]
     string? serviceButtonText;
@@ -28,12 +36,16 @@ public partial class SettingsViewModel : ObservableObject
     int frequency;
 
     [RelayCommand]
-    void ToggleService()
+    async Task ToggleService()
     {
-        //TODO
-        //start service on app start up, but if there are no items saved, don't start service
-        var isRunning = PriceCheckerService.ToggleService();
-        SetTextValuesForService(isRunning);
+        if (Items!.Count > 0 || _isRunning)
+        {
+            _isRunning = PriceCheckerService.ToggleService();
+            SetTextValuesForService();
+        } else
+        {
+            await _mainPage!.DisplayAlert("Toggle service action", "You don't have items in your list to start service", "OK");
+        }        
     }
 
     [RelayCommand]
@@ -48,9 +60,16 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    void SetFrequency()
+    async Task Focused(object entry)
     {
-        Preferences.Set(Constants.FrequencyKey, Frequency);
+        var e = (Entry)entry;
+        var value = await _mainPage!.DisplayPromptAsync("Frequency", "How often in hours to check for changes?\n Enter number from 1 to 24. ", maxLength:2, keyboard: Keyboard.Numeric);
+        if (value != null && int.TryParse(value, out int result) && result > 0 && result < 25)
+        {
+            Preferences.Set(Constants.FrequencyKey, result);
+            Frequency = result;
+        }
+        e.Unfocus();
     }
 
     [RelayCommand]
@@ -59,9 +78,9 @@ public partial class SettingsViewModel : ObservableObject
         await Shell.Current.GoToAsync("..");
     }
 
-    private void SetTextValuesForService(bool isRunning)
+    private void SetTextValuesForService()
     {
-        ServiceButtonText = isRunning ? Constants.StopService : Constants.StartService;
-        ServiceStatus = isRunning ? Constants.ServiceRunning : Constants.ServiceStopped;
+        ServiceButtonText = _isRunning ? Constants.StopService : Constants.StartService;
+        ServiceStatus = _isRunning ? Constants.ServiceRunning : Constants.ServiceStopped;
     }
 }

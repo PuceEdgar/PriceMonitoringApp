@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PriceMonitoringLibrary.Enums;
 
 namespace PriceMonitoringLibrary.Models;
 
@@ -7,6 +8,7 @@ public partial class MonitoredItem : ObservableObject
     private string? _price;
     private bool _isSoldOut;
     private string? _previousPrice;
+    private CheaperPrice _isPriceCheaper = CheaperPrice.Same;
 
     public string? DateItemAdded { get; set; } = DateTime.Now.ToShortDateString();
 
@@ -40,4 +42,9 @@ public partial class MonitoredItem : ObservableObject
     public string? ProductUrl { get; set; }
     public string? ShareUrl { get; set; }
     public string? ProductCode { get; set; }
+    public CheaperPrice IsPriceCheaper
+    {
+        get => _isPriceCheaper;
+        set => SetProperty(ref _isPriceCheaper, value);
+    }
 }

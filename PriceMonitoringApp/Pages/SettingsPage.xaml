@@ -5,9 +5,11 @@
              xmlns:viewmodel="clr-namespace:PriceMonitoringApp.ViewModel"
              x:DataType="viewmodel:SettingsViewModel"
              xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:local="clr-namespace:PriceMonitoringApp.Converters"
              Title="Settings">
 
     <ContentPage.Resources>
+        <local:ServiceStatusToColorConverter x:Key="serviceStatusToColor" />
         <Style x:Key="InvalidEntryStyle"
                TargetType="Entry">
             <Setter Property="TextColor"
@@ -38,18 +40,21 @@
                 Grid.ColumnSpan="2"
                 Margin="30, 10" />
         <Label Grid.Row="1"
-               Text="Data sync frequency"
+               Text="How often to check for changes (1 - 24 h)"
                FontSize="20"
-               VerticalTextAlignment="Center" />
+               VerticalTextAlignment="Center"
+               LineBreakMode="WordWrap"/>
         <Entry Grid.Row="1"
                Grid.Column="1"
                Placeholder="Enter number"
                Keyboard="Numeric"
                Text="{Binding Frequency}"
-               HorizontalTextAlignment="Center">
+               HorizontalTextAlignment="Center"
+               x:Name="entryF">
             <Entry.Behaviors>
-                <xct:EventToCommandBehavior EventName="Completed"
-                                            Command="{Binding SetFrequencyCommand}" />
+                <xct:EventToCommandBehavior EventName="Focused"
+                                            Command="{Binding FocusedCommand}"
+                                            CommandParameter="{Binding Source={x:Reference entryF}}" />
                 <xct:NumericValidationBehavior InvalidStyle="{StaticResource InvalidEntryStyle}"
                                                ValidStyle="{StaticResource ValidEntryStyle}"
                                                Flags="ValidateOnValueChanged"
@@ -58,9 +63,17 @@
             </Entry.Behaviors>
         </Entry>
         <Label Grid.Row="2"
-               Text="{Binding ServiceStatus, StringFormat='Service status: {0}'}"
-               FontSize="20"
-               VerticalTextAlignment="Center" />
+               LineBreakMode="WordWrap"
+               VerticalTextAlignment="Center"
+               FontSize="20">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span Text="Service status: "/>
+                    <Span Text="{Binding ServiceStatus}"
+                          TextColor="{Binding ServiceStatus, Converter={StaticResource serviceStatusToColor}}"/>
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
         <Button Grid.Row="2"
                 Grid.Column="1"
                 Text="{Binding ServiceButtonText}"

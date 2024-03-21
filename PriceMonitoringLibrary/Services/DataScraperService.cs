@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using PriceMonitoringApp;
+using PriceMonitoringLibrary.Enums;
 using PriceMonitoringLibrary.Models;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -27,14 +28,23 @@ public static class DataScraperService
         foreach (var item in monitoredItems)
         {
             var newItemData = await GetItemFromUrl(item.ShareUrl!);
-            if (item.Price != newItemData?.Price)
+
+            if (newItemData is null)
             {
+                return detailsChanged;
+            }
+
+            if (!string.IsNullOrWhiteSpace(newItemData.Price) && item.Price != newItemData.Price)
+            {
+                item.IsPriceCheaper = IsPriceCheaper(item.Price!, newItemData.Price);
                 detailsChanged = true;
                 item.PreviousPrice = item.Price;
                 item.PriceHistory.Add(new HistoryDetails { Price = item.Price });
-                item.Price = newItemData?.Price;
+                item.Price = newItemData.Price;                
             }
-            var result = item.AvailableSizes?.Except(newItemData?.AvailableSizes, new SizeDetailsComparer()).ToList();
+
+            var result = item.AvailableSizes?.Except(newItemData.AvailableSizes, new SizeDetailsComparer()).ToList();
+
             if (result?.Count > 0)
             {
                 detailsChanged = true;
@@ -48,6 +58,13 @@ public static class DataScraperService
         }
 
         return detailsChanged;
+    }
+
+    private static CheaperPrice IsPriceCheaper(string currentPrice, string newPrice)
+    {
+        var currentValue = currentPrice.Split('￦')[1];
+        var newValue = newPrice.Split('￦')[1];
+        return double.Parse(currentValue) > double.Parse(newValue) ? CheaperPrice.Yes : CheaperPrice.No;
     }
 
     private static MonitoredItem CollectItemInfoFromHanstyleMobile(IEnumerable<HtmlNode> nodes, string url)
@@ -90,7 +107,7 @@ public static class DataScraperService
             ImageUrl = $"https:{img}",
             IsSoldOut = isSoldOut,
             ProductUrl = productUrl,
-            AvailableSizesAsString = $"\n{string.Join("  ", availableSizes?.Select(s => $"[ {s.Size} ]"))}",
+            AvailableSizesAsString = $"\n{string.Join("  ", availableSizes!.Select(s => $"[ {s.Size} ]"))}",
             ShareUrl = url,
             ProductCode = UriService.GetProductCodeValueFromUri(url)
         };

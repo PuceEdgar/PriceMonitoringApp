@@ -14,7 +14,6 @@ internal class ForegroundServiceNotification : Service
 
     public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
     {
-        // Create and display the foreground notification
         NotificationChannel channel = new("ServiceChannel", "PriceService", NotificationImportance.Max);
         NotificationManager manager = (NotificationManager)MainActivity.ActivityCurrent.GetSystemService(NotificationService);
         manager.CreateNotificationChannel(channel);
