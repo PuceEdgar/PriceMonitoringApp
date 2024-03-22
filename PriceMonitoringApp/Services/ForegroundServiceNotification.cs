@@ -14,7 +14,7 @@ internal class ForegroundServiceNotification : Service
 
     public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
     {
-        NotificationChannel channel = new("ServiceChannel", "PriceService", NotificationImportance.Max);
+        NotificationChannel channel = new NotificationChannel("ServiceChannel", "PriceService", NotificationImportance.Max);
         NotificationManager manager = (NotificationManager)MainActivity.ActivityCurrent.GetSystemService(NotificationService);
         manager.CreateNotificationChannel(channel);
 
@@ -23,7 +23,7 @@ internal class ForegroundServiceNotification : Service
             .SetContentText("Running")
             .Build();
 
-        StartForeground(100, notification);
+        StartForeground(251287, notification);
 
         return StartCommandResult.NotSticky;
     }
