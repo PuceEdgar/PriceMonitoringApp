@@ -13,9 +13,9 @@ internal class AvailabilityToColorConverter : IValueConverter
 
         var color = (string)value switch
         {
-            string a when a.Equals(Constants.LastItem, StringComparison.CurrentCultureIgnoreCase) => Colors.Red,
-            string a when a.Equals(Constants.LessThanFive, StringComparison.CurrentCultureIgnoreCase) => Colors.Orange,
-            string a when a.Equals(Constants.Many, StringComparison.CurrentCultureIgnoreCase) => Colors.Green,
+            string a when a.Equals(Constants.LastItem, StringComparison.CurrentCultureIgnoreCase) || (int.TryParse(a, out int q) && q == 1) => Colors.Red,
+            string a when a.Equals(Constants.LessThanFive, StringComparison.CurrentCultureIgnoreCase) || (int.TryParse(a, out int q) && q == 2) => Colors.Orange,
+            string a when a.Equals(Constants.Many, StringComparison.CurrentCultureIgnoreCase) || (int.TryParse(a, out int q) && q > 2) => Colors.Green,
             _ => Colors.Grey,
         };
 

@@ -4,20 +4,31 @@ using PriceMonitoringLibrary.Enums;
 using PriceMonitoringLibrary.Models;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Text.Json.Nodes;
 
 namespace PriceMonitoringLibrary.Services;
 
 public static class DataScraperService
 {
     public static async Task<MonitoredItem?> GetItemFromUrl(string url)
-    {        
-        var nodes = await GetNodesFromProvidedUrl(url);
-        if (nodes is null || nodes.Count() < 700)
+    {
+        var content = await GetStringContentFromProvidedUrl(url);
+
+        var nodes = GetNodesFromContent(content);
+
+        if (nodes is null || nodes.Count() < 400)
         {
             return null;
         }
 
-        return CollectItemInfoFromHanstyleMobile(nodes, url);
+        var item = url switch
+        {
+            string u when u.Contains(Constants.MobileHanstyleDomainName) => CollectItemInfoFromHanstyleMobile(nodes, url),
+            string u when u.Contains(Constants.MusinsaDomainName) => await CollectItemInfoFromMusinsaMobile(content),
+            _ => null
+        };
+
+        return item;
     }
 
     public static async Task<bool> CheckIfItemDetailsHaveChanged()
@@ -27,10 +38,11 @@ public static class DataScraperService
 
         foreach (var item in monitoredItems)
         {
-            var newItemData = await GetItemFromUrl(item.ShareUrl!);
+            var newItemData = item.ShopName == ShopName.Hanstyle ? await GetItemFromUrl(item.ProductUrl!) : await CollectMusinsaDetailsForId(item.Id!);
 
             if (newItemData is null)
             {
+                await NotificationService.ShowGeneralErrorNotification(item);
                 return detailsChanged;
             }
 
@@ -40,10 +52,10 @@ public static class DataScraperService
                 detailsChanged = true;
                 item.PreviousPrice = item.Price;
                 item.PriceHistory.Add(new HistoryDetails { Price = item.Price });
-                item.Price = newItemData.Price;                
+                item.Price = newItemData.Price;
             }
 
-            var result = item.AvailableSizes?.Except(newItemData.AvailableSizes, new SizeDetailsComparer()).ToList();
+            var result = item.AvailableSizes?.Except(newItemData.AvailableSizes!, new SizeDetailsComparer()).ToList();
 
             if (result?.Count > 0)
             {
@@ -58,6 +70,72 @@ public static class DataScraperService
         }
 
         return detailsChanged;
+    }    
+
+    public static async Task<MonitoredItem> CollectMusinsaDetailsForId(string id)
+    {
+        var item = new MonitoredItem
+        {
+            Id = id,
+            ShopName = ShopName.Musinsa
+        };
+        var itemDetailsJson = await GetStringContentFromProvidedUrl(Constants.GetMusinsaItemDetailUrl(id));
+        PopulateItemDetails(item, itemDetailsJson);
+
+        var remainingSizeJson = await GetStringContentFromProvidedUrl(Constants.GetMusinsaRemainingSizeUrl(id));
+        PopulateSizeDetails(item, remainingSizeJson);
+        return item;
+    }
+
+    private static async Task<MonitoredItem?> CollectItemInfoFromMusinsaMobile(string content)
+    {
+        var id = content.Split("goods")[1].Split("?")[0].Split("/")[1];
+
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return null;
+        }
+        return await CollectMusinsaDetailsForId(id);
+    }
+
+    private static void PopulateSizeDetails(MonitoredItem item, string remainingSizeJson)
+    {
+        var dataNode = JsonNode.Parse(remainingSizeJson)!["data"];
+        var sizeArray = (JsonArray)dataNode!["basic"]!;
+
+        foreach (var sizeInfo in sizeArray)
+        {
+            var size = sizeInfo!["name"]!.ToString();
+            var availability = sizeInfo!["remainQuantity"]!.ToString();
+            item.AllSizes!.Add(new SizeDetails(size, availability));
+            if (availability != "0")
+            {
+                item.AvailableSizes!.Add(new SizeDetails(size, availability));
+            }
+        }
+        item.AvailableSizesAsString = $"\n{string.Join("  ", item.AvailableSizes!.Select(s => $"[ {s.Size} ]"))}";
+    }
+
+    private static void PopulateItemDetails(MonitoredItem item, string itemDetailsJson)
+    {
+        var dataNode = JsonNode.Parse(itemDetailsJson)!["data"];
+        item.Brand = dataNode!["brandNmEng"]!.ToString();
+        item.Description = dataNode["goodsNmEng"]!.ToString();
+        item.Price = FormatStringToCurrency(dataNode!["goodsPrice"]!["memberPrice"]!.ToString());
+        item.OriginalPrice = FormatStringToCurrency(dataNode!["goodsPrice"]!["originPrice"]!.ToString());
+        item.InitialProductPrice = item.OriginalPrice;
+        item.DiscountPercent = $"{dataNode!["goodsPrice"]!["discountRate"]}%";
+        item.ProductUrl = Constants.GetMusinsaItemDetailUrl(item.Id!);
+        item.SizeDetailsUrl = Constants.GetMusinsaRemainingSizeUrl(item.Id!);
+        item.ImageUrl = Constants.GetMusinsaImageUrl(dataNode["thumbnailImageUrl"]!.ToString());
+    }
+
+    private static IEnumerable<HtmlNode> GetNodesFromContent(string content)
+    {
+        HtmlDocument doc = new();
+        doc.LoadHtml(content);
+
+        return doc.DocumentNode.Descendants(0);
     }
 
     private static CheaperPrice IsPriceCheaper(string currentPrice, string newPrice)
@@ -74,7 +152,6 @@ public static class DataScraperService
         var title = GetValueForProperty(nodes, Constants.TitleProperty);
         var img = GetValueForProperty(nodes, Constants.ImageProperty);
         var price = GetValueForProperty(nodes, Constants.PriceProperty);
-        var productUrl = GetValueForProperty(nodes, Constants.UrlProperty);
         var options = nodes?.FirstOrDefault(n => n.HasClass(Constants.OptionSelectBoxTag))?.ChildNodes?.FirstOrDefault(n => n.Name == "ul")?.ChildNodes.Where(n => n.Name == "li");
         var allSizes = new List<SizeDetails>();
         var availableSizes = new List<SizeDetails>();
@@ -96,6 +173,7 @@ public static class DataScraperService
 
         MonitoredItem item = new()
         {
+            ShopName = ShopName.Hanstyle,
             Brand = brand,
             Description = title,
             Price = FormatStringToCurrency(salePrice),
@@ -106,10 +184,9 @@ public static class DataScraperService
             AvailableSizes = availableSizes,
             ImageUrl = $"https:{img}",
             IsSoldOut = isSoldOut,
-            ProductUrl = productUrl,
+            ProductUrl = url,
             AvailableSizesAsString = $"\n{string.Join("  ", availableSizes!.Select(s => $"[ {s.Size} ]"))}",
-            ShareUrl = url,
-            ProductCode = UriService.GetProductCodeValueFromUri(url)
+            Id = UriService.GetProductIdValueFromUri(url)
         };
 
         return item;
@@ -132,18 +209,14 @@ public static class DataScraperService
         return noSizeLeft || soldOutMetaExists;
     }
 
-    private static async Task<IEnumerable<HtmlNode>> GetNodesFromProvidedUrl(string url)
+    private static async Task<string> GetStringContentFromProvidedUrl(string url)
     {
         using HttpClient client = new();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-        client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
+        //client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        //client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
         using HttpResponseMessage response = await client.GetAsync(url);
         using HttpContent content = response.Content;
 
-        string result = await content.ReadAsStringAsync();
-        HtmlDocument doc = new();
-        doc.LoadHtml(result);
-
-        return doc.DocumentNode.Descendants(0);
+        return await content.ReadAsStringAsync();
     }
 }

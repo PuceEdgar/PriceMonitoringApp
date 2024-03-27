@@ -1,7 +1,5 @@
-﻿using Android;
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
-using Android.OS;
 
 namespace PriceMonitoringApp;
 
@@ -13,21 +11,4 @@ public class MainActivity : MauiAppCompatActivity
     {
         ActivityCurrent = this;
     }
-    //protected override void OnStart()
-    //{
-    //    base.OnStart();
-    //    const int requestLocationId = 0;
-
-    //    string[] notiPermission =
-    //    {
-    //        Manifest.Permission.PostNotifications
-    //    };
-
-    //    if ((int)Build.VERSION.SdkInt < 33) return;
-
-    //    if (this.CheckSelfPermission(Manifest.Permission.PostNotifications) != Permission.Granted)
-    //    {
-    //        this.RequestPermissions(notiPermission, requestLocationId);
-    //    }
-    //}
 }

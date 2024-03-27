@@ -10,8 +10,9 @@ public partial class MonitoredItem : ObservableObject
     private string? _previousPrice;
     private CheaperPrice _isPriceCheaper = CheaperPrice.Same;
 
+    public ShopName ShopName { get; set; }
     public string? DateItemAdded { get; set; } = DateTime.Now.ToShortDateString();
-
+    public string? Id { get; set; }
     public string? Brand { get; set; }
     public string? Description { get; set; }
     public string? InitialProductPrice { get; set; }
@@ -30,8 +31,8 @@ public partial class MonitoredItem : ObservableObject
     public List<HistoryDetails> PriceHistory { get; set; } = [];
     public string? OriginalPrice { get; set; }
     public string? DiscountPercent { get; set; }
-    public List<SizeDetails>? AllSizes { get; set; }
-    public List<SizeDetails>? AvailableSizes { get; set; }
+    public List<SizeDetails>? AllSizes { get; set; } = [];
+    public List<SizeDetails>? AvailableSizes { get; set; } = [];
     public string? AvailableSizesAsString { get; set; }
     public string? ImageUrl { get; set; }
     public bool IsSoldOut
@@ -40,8 +41,7 @@ public partial class MonitoredItem : ObservableObject
         set => SetProperty(ref _isSoldOut, value);
     }
     public string? ProductUrl { get; set; }
-    public string? ShareUrl { get; set; }
-    public string? ProductCode { get; set; }
+    public string? SizeDetailsUrl { get; set; }
     public CheaperPrice IsPriceCheaper
     {
         get => _isPriceCheaper;

@@ -91,15 +91,16 @@ public partial class MainViewModel : ObservableObject
 
     private async Task AddItemFromUrl()
     {
-        if (string.IsNullOrWhiteSpace(Url) || !Uri.IsWellFormedUriString(Url, UriKind.Absolute) || !Url.Contains(Constants.MobileHanstyleDomainName, StringComparison.CurrentCultureIgnoreCase))
+        //|| !Url.Contains(Constants.MobileHanstyleDomainName, StringComparison.CurrentCultureIgnoreCase)
+        if (string.IsNullOrWhiteSpace(Url) || !Uri.IsWellFormedUriString(Url, UriKind.Absolute) )
         {
             await _mainPage!.DisplayAlert("Adding new item", "Link to item was not provided, is in wrong format or not from Hanstyle mobile app. Please provide link again.", "OK");
             return;
         }
 
-        var productCode = UriService.GetProductCodeValueFromUri(Url);
+        var productId = UriService.GetProductIdValueFromUri(Url);
 
-        if (Items.Any(mi => mi.ProductCode == productCode))
+        if (Items.Any(mi => mi.Id == productId))
         {
             await _mainPage!.DisplayAlert("Adding new item", "Item already exists in the item list.", "OK");
             return;
