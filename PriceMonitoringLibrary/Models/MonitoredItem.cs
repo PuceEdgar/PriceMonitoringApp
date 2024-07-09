@@ -47,4 +47,6 @@ public partial class MonitoredItem : ObservableObject
         get => _isPriceCheaper;
         set => SetProperty(ref _isPriceCheaper, value);
     }
+
+    public string? LinkToProduct { get; set; }
 }

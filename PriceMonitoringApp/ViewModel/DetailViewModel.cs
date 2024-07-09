@@ -1,7 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PriceMonitoringLibrary.Models;
+using System;
+using System.Diagnostics.Contracts;
 using System.Text;
+using System.Threading.Tasks;
+//using static System.Net.Mime.MediaTypeNames;
 
 namespace PriceMonitoringApp.ViewModel;
 
@@ -30,6 +34,20 @@ public partial class DetailViewModel : ObservableObject
 
         Item.PriceHistory?.ForEach(h => message.AppendLine($"{h.Date} - {h.Price}"));
         await Application.Current.MainPage.DisplayAlert("Price History", message.ToString(), "Close");
+    }
+
+    [RelayCommand]
+    async Task OpenProductUrl()
+    {
+        try
+        {
+            Uri uri = new Uri(item.LinkToProduct);
+            await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Open Product URL", $"Failed: {ex.Message}", "Close");
+        }
     }
 
     partial void OnItemChanged(MonitoredItem? oldValue, MonitoredItem newValue)

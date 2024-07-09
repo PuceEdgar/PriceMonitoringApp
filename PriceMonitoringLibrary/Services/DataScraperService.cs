@@ -24,7 +24,7 @@ public static class DataScraperService
         var item = url switch
         {
             string u when u.Contains(Constants.MobileHanstyleDomainName) => CollectItemInfoFromHanstyleMobile(nodes, url),
-            string u when u.Contains(Constants.MusinsaDomainName) => await CollectItemInfoFromMusinsaMobile(content),
+            string u when u.Contains(Constants.MusinsaDomainName) => await CollectItemInfoFromMusinsaMobile(content, url),
             _ => null
         };
 
@@ -72,7 +72,7 @@ public static class DataScraperService
         return detailsChanged;
     }    
 
-    public static async Task<MonitoredItem> CollectMusinsaDetailsForId(string id)
+    public static async Task<MonitoredItem> CollectMusinsaDetailsForId(string id, string? productUrl = null)
     {
         var item = new MonitoredItem
         {
@@ -80,14 +80,14 @@ public static class DataScraperService
             ShopName = ShopName.Musinsa
         };
         var itemDetailsJson = await GetStringContentFromProvidedUrl(Constants.GetMusinsaItemDetailUrl(id));
-        PopulateItemDetails(item, itemDetailsJson);
+        PopulateItemDetails(item, itemDetailsJson, productUrl);
 
         var remainingSizeJson = await GetStringContentFromProvidedUrl(Constants.GetMusinsaRemainingSizeUrl(id));
         PopulateSizeDetails(item, remainingSizeJson);
         return item;
     }
 
-    private static async Task<MonitoredItem?> CollectItemInfoFromMusinsaMobile(string content)
+    private static async Task<MonitoredItem?> CollectItemInfoFromMusinsaMobile(string content, string productUrl)
     {
         var id = content.Split("goods")[1].Split("?")[0].Split("/")[1];
 
@@ -95,7 +95,7 @@ public static class DataScraperService
         {
             return null;
         }
-        return await CollectMusinsaDetailsForId(id);
+        return await CollectMusinsaDetailsForId(id, productUrl);
     }
 
     private static void PopulateSizeDetails(MonitoredItem item, string remainingSizeJson)
@@ -116,7 +116,7 @@ public static class DataScraperService
         item.AvailableSizesAsString = $"\n{string.Join("  ", item.AvailableSizes!.Select(s => $"[ {s.Size} ]"))}";
     }
 
-    private static void PopulateItemDetails(MonitoredItem item, string itemDetailsJson)
+    private static void PopulateItemDetails(MonitoredItem item, string itemDetailsJson, string? productUrl)
     {
         var dataNode = JsonNode.Parse(itemDetailsJson)!["data"];
         item.Brand = dataNode!["brandNmEng"]!.ToString();
@@ -128,6 +128,7 @@ public static class DataScraperService
         item.ProductUrl = Constants.GetMusinsaItemDetailUrl(item.Id!);
         item.SizeDetailsUrl = Constants.GetMusinsaRemainingSizeUrl(item.Id!);
         item.ImageUrl = Constants.GetMusinsaImageUrl(dataNode["thumbnailImageUrl"]!.ToString());
+        item.LinkToProduct ??= productUrl;
     }
 
     private static IEnumerable<HtmlNode> GetNodesFromContent(string content)
@@ -186,7 +187,8 @@ public static class DataScraperService
             IsSoldOut = isSoldOut,
             ProductUrl = url,
             AvailableSizesAsString = $"\n{string.Join("  ", availableSizes!.Select(s => $"[ {s.Size} ]"))}",
-            Id = UriService.GetProductIdValueFromUri(url)
+            Id = UriService.GetProductIdValueFromUri(url),
+            LinkToProduct = url
         };
 
         return item;
